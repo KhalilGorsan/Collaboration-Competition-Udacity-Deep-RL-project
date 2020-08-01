@@ -1,16 +1,25 @@
 import numpy as np
 import torch
 
-from ddpg import Agent
+from ddpg import Agent, ReplayBuffer
+
+BUFFER_SIZE = int(1e5)  # replay buffer size
+BATCH_SIZE = 128  # minibatch size
+random_seed = 10
 
 
 class Maddpg:
-    def __init__(self, random_seed, state_size, action_size, replay_buffer, num_agents):
+    def __init__(self, random_seed, state_size, action_size, num_agents):
         self.state_size = state_size
         self.action_size = action_size
         self.random_seed = random_seed
         self.num_agents = num_agents
-        self.shared_buffer = replay_buffer
+        self.shared_buffer = ReplayBuffer(
+            action_size=action_size,
+            buffer_size=BUFFER_SIZE,
+            batch_size=BATCH_SIZE,
+            seed=random_seed,
+        )
         self.agents = [
             Agent(state_size, action_size, random_seed) for _ in range(num_agents)
         ]
@@ -19,7 +28,7 @@ class Maddpg:
         self.shared_buffer.add(states, actions, rewards, next_states, dones)
 
         for agent in self.agents:
-            agent.step()
+            agent.step(shared_buffer=self.shared_buffer)
 
     def act(self, states, add_noise=True):
         actions = np.zeros([self.num_agents, self.action_size])

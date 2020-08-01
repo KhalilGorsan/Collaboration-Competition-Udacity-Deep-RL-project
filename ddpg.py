@@ -7,7 +7,6 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-from maddpg import Maddpg
 from model import Actor, Critic
 
 BUFFER_SIZE = int(1e5)  # replay buffer size
@@ -21,7 +20,7 @@ WEIGHT_DECAY = 0  # L2 weight decay
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-class Agent(Maddpg):
+class Agent:
     """Interacts with and learns from the environment."""
 
     def __init__(self, state_size, action_size, random_seed):
@@ -59,11 +58,11 @@ class Agent(Maddpg):
         for target_param, param in zip(target.parameters(), source.parameters()):
             target_param.data.copy_(param.data)
 
-    def step(self, state, action, reward, next_state, done):
+    def step(self, shared_buffer):
         """Use random sample from buffer to learn."""
         # Learn, if enough samples are available in memory
-        if len(self.shared_buffer) > BATCH_SIZE:
-            experiences = self.shared_buffer.sample()
+        if len(shared_buffer) > BATCH_SIZE:
+            experiences = shared_buffer.sample()
             self.learn(experiences, GAMMA)
 
     def act(self, state, add_noise=True):
