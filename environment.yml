@@ -15,7 +15,6 @@ dependencies:
   - pip
   - pip:
       - tensorflow==2.0
-      - tensorboardX==2.1
       - torch==0.4.1
       - unityagents==0.4.0
       - pre-commit
