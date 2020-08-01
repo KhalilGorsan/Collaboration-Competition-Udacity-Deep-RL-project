@@ -22,9 +22,9 @@ class TennisWrapper:
     def step(self, action):
         env_info = self.env.step(action)[self.brain_name]
         next_states = env_info.vector_observations
-        reward = env_info.rewards
-        done = env_info.local_done
-        return next_states, reward, done
+        rewards = env_info.rewards
+        dones = env_info.local_done
+        return next_states, rewards, dones
 
     def close(self):
         self.env.close()
