@@ -16,15 +16,15 @@ class TennisWrapper:
 
     def reset(self):
         env_info = self.env.reset(train_mode=True)[self.brain_name]
-        state = env_info.vector_observations[0]
-        return state
+        states = env_info.vector_observations
+        return states
 
     def step(self, action):
         env_info = self.env.step(action)[self.brain_name]
-        next_state = env_info.vector_observations[0]
-        reward = env_info.rewards[0]
-        done = env_info.local_done[0]
-        return next_state, reward, done
+        next_states = env_info.vector_observations
+        reward = env_info.rewards
+        done = env_info.local_done
+        return next_states, reward, done
 
     def close(self):
         self.env.close()
