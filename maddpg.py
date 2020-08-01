@@ -21,7 +21,8 @@ class Maddpg:
             seed=random_seed,
         )
         self.agents = [
-            Agent(state_size, action_size, random_seed) for _ in range(num_agents)
+            Agent(state_size, action_size, num_agents, random_seed)
+            for _ in range(num_agents)
         ]
 
     def step(self, states, actions, rewards, next_states, dones):
