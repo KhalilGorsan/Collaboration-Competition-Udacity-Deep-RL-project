@@ -15,10 +15,7 @@ class Maddpg:
         self.random_seed = random_seed
         self.num_agents = num_agents
         self.shared_buffer = ReplayBuffer(
-            action_size=action_size,
-            buffer_size=BUFFER_SIZE,
-            batch_size=BATCH_SIZE,
-            seed=random_seed,
+            buffer_size=BUFFER_SIZE, batch_size=BATCH_SIZE, num_agents=num_agents
         )
         self.agents = [
             Agent(state_size, action_size, num_agents, random_seed)
