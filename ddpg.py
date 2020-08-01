@@ -95,15 +95,19 @@ class Agent:
             gamma (float): discount factor
         """
         states, actions, rewards, next_states, dones = experiences
+        next_states_tensor = torch.cat(next_states, dim=1).to(device)
+        states_tensor = torch.cat(states, dim=1).to(device)
+        actions_tensor = torch.cat(actions, dim=1).to(device)
 
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
-        actions_next = self.actor_target(next_states)
-        Q_targets_next = self.critic_target(next_states, actions_next)
+        actions_next = [self.actor_target(next_state) for next_state in next_states]
+        actions_next_tensor = torch.cat(actions_next, dim=1).to(device)
+        Q_targets_next = self.critic_target(next_states_tensor, actions_next_tensor)
         # Compute Q targets for current states (y_i)
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
         # Compute critic loss
-        Q_expected = self.critic_local(states, actions)
+        Q_expected = self.critic_local(states_tensor, actions_tensor)
         critic_loss = F.mse_loss(Q_expected, Q_targets)
         # Minimize the loss
         self.critic_optimizer.zero_grad()
@@ -113,8 +117,9 @@ class Agent:
 
         # ---------------------------- update actor ---------------------------- #
         # Compute actor loss
-        actions_pred = self.actor_local(states)
-        actor_loss = -self.critic_local(states, actions_pred).mean()
+        actions_pred = [self.actor_local(state) for state in states]
+        actions_pred_tensor = torch.cat(actions_pred, dim=1).to(device)
+        actor_loss = -self.critic_local(states_tensor, actions_pred_tensor).mean()
         # Minimize the loss
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
@@ -181,7 +186,7 @@ class ReplayBuffer:
         self.batch_size = batch_size
         self.experience = namedtuple(
             "Experience",
-            field_names=["state", "action", "reward", "next_state", "done"],
+            field_names=["states", "actions", "rewards", "next_states", "dones"],
         )
         self.seed = random.seed(seed)
 
@@ -195,34 +200,36 @@ class ReplayBuffer:
         experiences = random.sample(self.memory, k=self.batch_size)
 
         states = (
-            torch.from_numpy(np.vstack([e.state for e in experiences if e is not None]))
+            torch.from_numpy(
+                np.vstack([e.states for e in experiences if e is not None])
+            )
             .float()
             .to(device)
         )
         actions = (
             torch.from_numpy(
-                np.vstack([e.action for e in experiences if e is not None])
+                np.vstack([e.actions for e in experiences if e is not None])
             )
             .float()
             .to(device)
         )
         rewards = (
             torch.from_numpy(
-                np.vstack([e.reward for e in experiences if e is not None])
+                np.vstack([e.rewards for e in experiences if e is not None])
             )
             .float()
             .to(device)
         )
         next_states = (
             torch.from_numpy(
-                np.vstack([e.next_state for e in experiences if e is not None])
+                np.vstack([e.next_states for e in experiences if e is not None])
             )
             .float()
             .to(device)
         )
         dones = (
             torch.from_numpy(
-                np.vstack([e.done for e in experiences if e is not None]).astype(
+                np.vstack([e.dones for e in experiences if e is not None]).astype(
                     np.uint8
                 )
             )
