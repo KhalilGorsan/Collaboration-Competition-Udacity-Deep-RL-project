@@ -10,14 +10,14 @@ from core import TennisWrapper
 from maddpg import Maddpg
 
 
-def train_maddpg(env, maddpg_agent, n_episodes=5000, print_every=100):
+def train_maddpg(env, maddpg_agent, num_agents=2, n_episodes=5000, print_every=100):
     scores_deque = deque(maxlen=print_every)
     scores = []
     solved = False
     for i_episode in range(1, n_episodes + 1):
         states = env.reset()
         maddpg_agent.reset()
-        score = []
+        score = np.zeros(num_agents)
         while True:
             actions = maddpg_agent.act(states)
             next_states, rewards, dones = env.step(actions)
@@ -31,20 +31,20 @@ def train_maddpg(env, maddpg_agent, n_episodes=5000, print_every=100):
         scores.append(max_score)
         avg_score = np.mean(scores_deque)
         print(
-            "\rEpisode {}\tAverage Score: {:.2f}".format(
+            "\rEpisode {}\tAverage Score: {:.3f}".format(
                 i_episode, np.mean(scores_deque)
             ),
             end="",
         )
         if i_episode % print_every == 0:
             print(
-                "\rEpisode {}\tAverage Score: {:.2f}".format(
+                "\rEpisode {}\tAverage Score: {:.3f}".format(
                     i_episode, np.mean(scores_deque)
                 )
             )
         if np.mean(scores_deque) >= 0.5 and not solved:
             print(
-                "\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}".format(
+                "\nEnvironment solved in {:d} episodes!\tAverage Score: {:.3f}".format(
                     i_episode, np.mean(scores_deque)
                 )
             )
@@ -61,7 +61,7 @@ def main():
     # the state size returned by the env is 24 and not 8.
     state_size = 24
     action_size = env.action_size
-    random_seed = 10
+    random_seed = 0
 
     maddpg_agent = Maddpg(
         state_size=state_size,
