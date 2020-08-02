@@ -10,7 +10,7 @@ from core import TennisWrapper
 from maddpg import Maddpg
 
 
-def train_maddpg(env, maddpg_agent, num_agents=2, n_episodes=5000, print_every=100):
+def train_maddpg(env, maddpg_agent, num_agents=2, n_episodes=3000, print_every=100):
     scores_deque = deque(maxlen=print_every)
     scores = []
     avg_score = []
