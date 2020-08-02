@@ -49,16 +49,8 @@ class Agent:
             self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY
         )
 
-        # self.hard_copy_weights(self.actor_target, self.actor_local)
-        # self.hard_copy_weights(self.critic_target, self.critic_local)
-
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
-
-    def hard_copy_weights(self, target, source):
-        """ copy weights from source to target network (part of initialization)"""
-        for target_param, param in zip(target.parameters(), source.parameters()):
-            target_param.data.copy_(param.data)
 
     def step(self, shared_buffer, batch_size):
         """Use random sample from buffer to learn."""
@@ -110,7 +102,6 @@ class Agent:
         # Minimize the loss
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.critic_local.parameters(), 1)
         self.critic_optimizer.step()
 
         # ---------------------------- update actor ---------------------------- #
@@ -153,6 +144,7 @@ class OUNoise:
         self.theta = theta
         self.sigma = sigma
         self.seed = random.seed(seed)
+        self.size = size
         self.reset()
 
     def reset(self):
@@ -162,9 +154,7 @@ class OUNoise:
     def sample(self):
         """Update internal state and return it as a noise sample."""
         x = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * np.array(
-            [random.random() for i in range(len(x))]
-        )
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.size)
         self.state = x + dx
         return self.state
 
