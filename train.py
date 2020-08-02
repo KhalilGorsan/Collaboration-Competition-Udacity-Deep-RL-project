@@ -77,10 +77,11 @@ def main():
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(np.arange(1, len(scores) + 1), scores, label="maddpg_score")
-    ax.plot(np.arange(1, len(avg_score) + 1), avg_score, label="maddpg_avg_score")
+    plt.plot(np.arange(1, len(scores) + 1), scores, label="maddpg_score")
+    plt.plot(np.arange(1, len(avg_score) + 1), avg_score, label="maddpg_avg_score")
     plt.ylabel("Scores")
     plt.xlabel("Episode #")
+    ax.legend(loc="upper left", shadow=True, fontsize="small")
     plt.show()
 
 
