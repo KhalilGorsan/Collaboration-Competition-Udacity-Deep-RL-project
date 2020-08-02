@@ -14,7 +14,6 @@ def train_maddpg(env, maddpg_agent, num_agents=2, n_episodes=3000, print_every=1
     scores_deque = deque(maxlen=print_every)
     scores = []
     avg_score = []
-    solved = False
     for i_episode in range(1, n_episodes + 1):
         states = env.reset()
         maddpg_agent.reset()
@@ -43,15 +42,14 @@ def train_maddpg(env, maddpg_agent, num_agents=2, n_episodes=3000, print_every=1
                     i_episode, np.mean(scores_deque)
                 )
             )
-        if np.mean(scores_deque) >= 0.5 and not solved:
+        if np.mean(scores_deque) >= 0.5:
             print(
                 "\nEnvironment solved in {:d} episodes!\tAverage Score: {:.3f}".format(
                     i_episode, np.mean(scores_deque)
                 )
             )
-            solved = True
-        if np.mean(scores_deque) >= 0.5:
             maddpg_agent.save_weights()
+            break
     return scores, avg_score
 
 
