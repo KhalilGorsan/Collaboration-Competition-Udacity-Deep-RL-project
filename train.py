@@ -13,6 +13,7 @@ from maddpg import Maddpg
 def train_maddpg(env, maddpg_agent, num_agents=2, n_episodes=5000, print_every=100):
     scores_deque = deque(maxlen=print_every)
     scores = []
+    avg_score = []
     solved = False
     for i_episode in range(1, n_episodes + 1):
         states = env.reset()
@@ -29,7 +30,7 @@ def train_maddpg(env, maddpg_agent, num_agents=2, n_episodes=5000, print_every=1
         max_score = np.max(score)
         scores_deque.append(max_score)
         scores.append(max_score)
-        avg_score = np.mean(scores_deque)
+        avg_score.append(np.mean(scores_deque))
         print(
             "\rEpisode {}\tAverage Score: {:.3f}".format(
                 i_episode, np.mean(scores_deque)
@@ -50,8 +51,7 @@ def train_maddpg(env, maddpg_agent, num_agents=2, n_episodes=5000, print_every=1
             )
             solved = True
         if np.mean(scores_deque) >= 0.5:
-            torch.save(maddpg_agent.actor_local.state_dict(), "checkpoint_actor.pth")
-            torch.save(maddpg_agent.critic_local.state_dict(), "checkpoint_critic.pth")
+            maddpg_agent.save_weights()
     return scores, avg_score
 
 
