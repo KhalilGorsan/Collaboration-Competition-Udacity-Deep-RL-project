@@ -49,8 +49,8 @@ class Agent:
             self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY
         )
 
-        self.hard_copy_weights(self.actor_target, self.actor_local)
-        self.hard_copy_weights(self.critic_target, self.critic_local)
+        # self.hard_copy_weights(self.actor_target, self.actor_local)
+        # self.hard_copy_weights(self.critic_target, self.critic_local)
 
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
