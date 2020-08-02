@@ -72,6 +72,9 @@ def main():
 
     scores, avg_score = train_maddpg(env=env, maddpg_agent=maddpg_agent)
 
+    # close the environment
+    env.close()
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(np.arange(1, len(scores) + 1), scores, label="maddpg_score")

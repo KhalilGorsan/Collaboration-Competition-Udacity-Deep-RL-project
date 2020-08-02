@@ -4,7 +4,7 @@ import torch
 from ddpg import Agent, ReplayBuffer
 
 BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 256  # minibatch size
+BATCH_SIZE = 250  # minibatch size
 random_seed = 10
 
 
