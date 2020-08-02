@@ -10,9 +10,10 @@ from core import TennisWrapper
 from maddpg import Maddpg
 
 
-def train_maddpg(env, maddpg_agent, n_episodes=100, max_t=10000, print_every=100):
+def train_maddpg(env, maddpg_agent, n_episodes=5000, print_every=100):
     scores_deque = deque(maxlen=print_every)
     scores = []
+    solved = False
     for i_episode in range(1, n_episodes + 1):
         states = env.reset()
         maddpg_agent.reset()
@@ -28,6 +29,7 @@ def train_maddpg(env, maddpg_agent, n_episodes=100, max_t=10000, print_every=100
         max_score = np.max(score)
         scores_deque.append(max_score)
         scores.append(max_score)
+        avg_score = np.mean(scores_deque)
         print(
             "\rEpisode {}\tAverage Score: {:.2f}".format(
                 i_episode, np.mean(scores_deque)
@@ -40,16 +42,17 @@ def train_maddpg(env, maddpg_agent, n_episodes=100, max_t=10000, print_every=100
                     i_episode, np.mean(scores_deque)
                 )
             )
-        if np.mean(scores_deque) >= 0.5:
+        if np.mean(scores_deque) >= 0.5 and not solved:
             print(
                 "\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}".format(
                     i_episode, np.mean(scores_deque)
                 )
             )
+            solved = True
+        if np.mean(scores_deque) >= 0.5:
             torch.save(maddpg_agent.actor_local.state_dict(), "checkpoint_actor.pth")
             torch.save(maddpg_agent.critic_local.state_dict(), "checkpoint_critic.pth")
-            break
-    return scores
+    return scores, avg_score
 
 
 def main():
@@ -67,11 +70,12 @@ def main():
         random_seed=random_seed,
     )
 
-    scores = train_maddpg(env=env, maddpg_agent=maddpg_agent)
+    scores, avg_score = train_maddpg(env=env, maddpg_agent=maddpg_agent)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    plt.plot(np.arange(1, len(scores) + 1), scores)
+    ax.plot(np.arange(1, len(scores) + 1), scores, label="maddpg_score")
+    ax.plot(np.arange(1, len(avg_score) + 1), avg_score, label="maddpg_avg_score")
     plt.ylabel("Scores")
     plt.xlabel("Episode #")
     plt.show()
