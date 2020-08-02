@@ -4,7 +4,7 @@ import torch
 from ddpg import Agent, ReplayBuffer
 
 BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 128  # minibatch size
+BATCH_SIZE = 256  # minibatch size
 random_seed = 10
 
 
@@ -26,7 +26,7 @@ class Maddpg:
         self.shared_buffer.add(states, actions, rewards, next_states, dones)
 
         for agent in self.agents:
-            agent.step(shared_buffer=self.shared_buffer)
+            agent.step(shared_buffer=self.shared_buffer, batch_size=BATCH_SIZE)
 
     def act(self, states, add_noise=True):
         actions = np.zeros([self.num_agents, self.action_size])

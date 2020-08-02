@@ -9,12 +9,10 @@ import torch.optim as optim
 
 from model import Actor, Critic
 
-BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 128  # minibatch size
 GAMMA = 0.99  # discount factor
 TAU = 1e-3  # for soft update of target parameters
-LR_ACTOR = 2e-4  # learning rate of the actor
-LR_CRITIC = 2e-4  # learning rate of the critic
+LR_ACTOR = 1e-3  # learning rate of the actor
+LR_CRITIC = 1e-4  # learning rate of the critic
 WEIGHT_DECAY = 0  # L2 weight decay
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -62,10 +60,10 @@ class Agent:
         for target_param, param in zip(target.parameters(), source.parameters()):
             target_param.data.copy_(param.data)
 
-    def step(self, shared_buffer):
+    def step(self, shared_buffer, batch_size):
         """Use random sample from buffer to learn."""
         # Learn, if enough samples are available in memory
-        if len(shared_buffer) > BATCH_SIZE:
+        if len(shared_buffer) > batch_size:
             experiences = shared_buffer.sample()
             self.learn(experiences, GAMMA)
 
